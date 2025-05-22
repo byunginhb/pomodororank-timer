@@ -68,7 +68,7 @@ const GNB: React.FC = () => {
         <div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden animate-fadeIn'>
           <div className='w-2/3 max-w-xs bg-zinc-900 h-full p-6 flex flex-col space-y-6 shadow-lg'>
             <div className='flex justify-between items-center mb-4'>
-              <div className='w-24 h-8 bg-zinc-800 rounded flex items-center justify-center text-white font-bold text-lg'>
+              <div className='p-2 h-8 bg-zinc-800 rounded flex items-center justify-center text-white font-bold text-xs'>
                 {t('LOGO')}
               </div>
               <button
