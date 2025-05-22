@@ -22,6 +22,8 @@ const resources = {
       SAVE: '저장',
       SAVED: '저장됨',
       ALARM_SOUND_SETTINGS: '알람 사운드 설정',
+      FOCUS: '집중',
+      BREAK: '휴식',
     },
   },
   en: {
@@ -44,6 +46,8 @@ const resources = {
       SAVE: 'Save',
       SAVED: 'Saved',
       ALARM_SOUND_SETTINGS: 'Alarm Sound Settings',
+      FOCUS: 'Focus',
+      BREAK: 'Break',
     },
   },
 };

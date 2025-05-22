@@ -13,7 +13,7 @@ const SOUND_OPTIONS = [
   { label: 'ROBOBIRDS_FX', value: 'robobirds-fx.mp3' },
 ];
 
-const GNB: React.FC = () => {
+const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
   const { t, i18n } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -67,7 +67,10 @@ const GNB: React.FC = () => {
   };
 
   return (
-    <nav className='w-full h-16 flex items-center justify-between px-4 bg-zinc-900 shadow-md fixed top-0 left-0 z-50'>
+    <nav
+      className={`w-full h-16 flex items-center justify-between px-4 shadow-md fixed top-0 left-0 z-50 transition-colors duration-300 ${
+        mode === 'focus' ? 'bg-blue-900' : 'bg-emerald-800'
+      }`}>
       {/* 로고 */}
       <div className='flex items-center h-full'>
         <div className='p-2 h-16 flex items-center'>
@@ -130,7 +133,7 @@ const GNB: React.FC = () => {
       {/* 모바일 메뉴 드로어 */}
       {mobileMenuOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden animate-fadeIn'>
-          <div className='w-2/3 max-w-xs bg-zinc-900 h-full p-6 flex flex-col space-y-6 shadow-lg'>
+          <div className='w-2/3 max-w-xs  h-full p-6 flex flex-col space-y-6 shadow-lg'>
             <div className='flex justify-between items-center mb-4'>
               <div className='w-32 h-16 flex items-center'>
                 <img

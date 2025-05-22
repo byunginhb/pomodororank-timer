@@ -16,7 +16,18 @@ const SOUND_OPTIONS = [
   },
 ];
 
-export default function Timer() {
+const MODE_OPTIONS = [
+  { key: 'focus', label: 'FOCUS', bg: '#1e40af' }, // blue-900
+  { key: 'break', label: 'BREAK', bg: '#065f46' }, // emerald-800
+];
+
+export default function Timer({
+  mode,
+  setMode,
+}: {
+  mode: 'focus' | 'break';
+  setMode: (m: 'focus' | 'break') => void;
+}) {
   const {
     minutes,
     seconds,
@@ -35,6 +46,10 @@ export default function Timer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [selectedSound, setSelectedSound] = useState(SOUND_OPTIONS[0].value);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
+
+  const focusPresets = [5, 10, 25, 50];
+  const breakPresets = [5, 10, 20];
+  const presets = mode === 'focus' ? focusPresets : breakPresets;
 
   // GNB에서 저장한 사운드 불러오기
   useEffect(() => {
@@ -98,7 +113,15 @@ export default function Timer() {
   };
 
   return (
-    <div className={styles.background}>
+    <div
+      className={styles.background}
+      style={{
+        background:
+          mode === 'focus'
+            ? 'linear-gradient(135deg, #1e293b 0%, #1e40af 60%, #1e293b 100%)'
+            : 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #064e3b 100%)',
+        transition: 'background 0.5s',
+      }}>
       <audio ref={audioRef} src={`/sounds/${selectedSound}`} preload='auto' />
       {isAlarmPlaying && (
         <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 100 }}>
@@ -110,9 +133,41 @@ export default function Timer() {
         </div>
       )}
       <div className={styles.container}>
+        {/* 모드 선택 버튼 */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            justifyContent: 'center',
+            marginBottom: 16,
+          }}>
+          {MODE_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setMode(opt.key as 'focus' | 'break')}
+              style={{
+                padding: '0.5rem 1.5rem',
+                borderRadius: 9999,
+                fontWeight: 700,
+                fontSize: 16,
+                border:
+                  mode === opt.key ? '2px solid #fff' : '2px solid transparent',
+                background:
+                  mode === opt.key ? '#fff' : 'rgba(255,255,255,0.08)',
+                color: mode === opt.key ? '#18181b' : '#fff',
+                boxShadow:
+                  mode === opt.key ? '0 2px 8px 0 rgba(0,0,0,0.12)' : undefined,
+                transition: 'all 0.2s',
+                cursor: 'pointer',
+              }}
+              aria-pressed={mode === opt.key}>
+              {t(opt.label)}
+            </button>
+          ))}
+        </div>
         {/* 프리셋 */}
         <div className={styles.presetGroup}>
-          {[25, 50, 10, 5, 1].map((m) => (
+          {presets.map((m) => (
             <button
               key={m}
               disabled={isRunning}
