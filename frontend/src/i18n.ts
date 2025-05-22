@@ -14,7 +14,14 @@ const resources = {
       RESET: '리셋',
       TIMER_LABEL: '{{min}}분 타이머',
       PRESET_MIN: '{{min}}분',
-      // 추가 번역 키 필요시 여기에 작성
+      SOUND_SETTINGS: '사운드 설정',
+      NONE: '없음',
+      CLOCK_TICKING: 'Clock Ticking',
+      ROBOBIRDS_FX: 'Robobirds FX',
+      PREVIEW: '미리듣기',
+      SAVE: '저장',
+      SAVED: '저장됨',
+      ALARM_SOUND_SETTINGS: '알람 사운드 설정',
     },
   },
   en: {
@@ -29,7 +36,14 @@ const resources = {
       RESET: 'Reset',
       TIMER_LABEL: '{{min}}min timer',
       PRESET_MIN: '{{min}}min',
-      // 추가 번역 키 필요시 여기에 작성
+      SOUND_SETTINGS: 'Sound Settings',
+      NONE: 'None',
+      CLOCK_TICKING: 'Clock Ticking',
+      ROBOBIRDS_FX: 'Robobirds FX',
+      PREVIEW: 'Preview',
+      SAVE: 'Save',
+      SAVED: 'Saved',
+      ALARM_SOUND_SETTINGS: 'Alarm Sound Settings',
     },
   },
 };
