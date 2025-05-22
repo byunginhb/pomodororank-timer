@@ -60,24 +60,39 @@ const GNB: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [soundModalOpen]);
 
+  // 사운드명 다국어 변환
+  const getSoundLabel = (value: string) => {
+    const found = SOUND_OPTIONS.find((opt) => opt.value === value);
+    return found ? t(found.label) : '';
+  };
+
   return (
     <nav className='w-full h-16 flex items-center justify-between px-4 bg-zinc-900 shadow-md fixed top-0 left-0 z-50'>
       {/* 로고 */}
       <div className='flex items-center h-full'>
-        <div className='p-4 h-8 bg-zinc-800 rounded flex items-center justify-center text-white font-bold text-lg tracking-wide'>
-          {t('LOGO')}
+        <div className='p-2 h-16 flex items-center'>
+          <img
+            src='/logo.png'
+            alt='logo'
+            className='h-16 w-auto mr-2'
+            style={{ minWidth: 64 }}
+          />
         </div>
       </div>
       {/* PC 메뉴 */}
       <div className='hidden md:flex items-center space-x-4'>
-        {/* 사운드 설정 버튼 */}
+        {/* 사운드 설정 메뉴 */}
         <button
           onClick={() => setSoundModalOpen(true)}
-          className='flex items-center px-3 py-1 rounded bg-zinc-800 text-white hover:bg-blue-500 transition text-sm font-medium shadow'>
-          <FiVolume2 className='mr-1' /> {t('SOUND_SETTINGS')}
+          className='flex items-center px-3 py-1 rounded hover:bg-zinc-800 transition text-sm font-medium text-white focus:outline-none'
+          aria-haspopup='true'>
+          <FiVolume2 className='mr-1' />
+          <span className='mx-2 text-zinc-400 text-sm truncate max-w-[70px]'>
+            {getSoundLabel(selectedSound)}
+          </span>
         </button>
         {/* 언어 드롭다운 */}
-        <div className='relative ml-6'>
+        <div className='relative ml-2'>
           <button
             className='flex items-center px-3 py-1 rounded hover:bg-zinc-800 transition text-sm font-medium text-white focus:outline-none'
             onClick={() => setLangOpen((v) => !v)}>
@@ -117,8 +132,13 @@ const GNB: React.FC = () => {
         <div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden animate-fadeIn'>
           <div className='w-2/3 max-w-xs bg-zinc-900 h-full p-6 flex flex-col space-y-6 shadow-lg'>
             <div className='flex justify-between items-center mb-4'>
-              <div className='w-24 h-8 bg-zinc-800 rounded flex items-center justify-center text-white font-bold text-lg'>
-                {t('LOGO')}
+              <div className='w-32 h-16 flex items-center'>
+                <img
+                  src='/logo.png'
+                  alt='logo'
+                  className='h-16 w-auto mr-2'
+                  style={{ minWidth: 64 }}
+                />
               </div>
               <button
                 className='text-white text-2xl'
@@ -126,11 +146,20 @@ const GNB: React.FC = () => {
                 <FiX />
               </button>
             </div>
-            {/* 사운드 설정 버튼 */}
+            {/* 사운드 설정 메뉴 */}
             <button
-              onClick={() => setSoundModalOpen(true)}
-              className='flex items-center px-3 py-2 rounded bg-zinc-800 text-white hover:bg-blue-500 transition text-sm font-medium shadow mb-4'>
-              <FiVolume2 className='mr-1' /> {t('SOUND_SETTINGS')}
+              onClick={() => {
+                setSoundModalOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className='flex items-center w-full px-3 py-2 rounded text-sm font-medium text-white hover:bg-zinc-800 transition shadow-none justify-between'>
+              <span className='flex items-center'>
+                <FiVolume2 className='mr-2' />
+                {t('SOUND_SETTINGS')}
+              </span>
+              <span className='text-zinc-400 text-xs truncate max-w-[70px]'>
+                {getSoundLabel(selectedSound)}
+              </span>
             </button>
             {/* 언어 선택 */}
             <div>
