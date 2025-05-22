@@ -1,9 +1,9 @@
-import FocusTimer from './features/timer/Timer';
+import Timer from './features/timer/Timer';
 
 function App() {
   return (
     <main>
-      <FocusTimer />
+      <Timer />
     </main>
   );
 }
