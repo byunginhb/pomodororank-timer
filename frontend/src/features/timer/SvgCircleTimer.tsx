@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Timer.module.css';
+import { useTranslation } from 'react-i18next';
 
 interface SvgCircleTimerProps {
   minutes: number;
@@ -30,6 +31,7 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
   seconds,
   duration,
 }) => {
+  const { t } = useTranslation();
   const totalSeconds = duration * 60;
   const remainingSeconds = minutes * 60 + seconds;
   const percent = remainingSeconds / totalSeconds;
@@ -73,7 +75,9 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
         <span className={styles.timeText}>
           {padded(minutes)}:{padded(seconds)}
         </span>
-        <span className={styles.durationText}>{duration}분 타이머</span>
+        <span className={styles.durationText}>
+          {t('TIMER_LABEL', { min: duration })}
+        </span>
       </div>
     </div>
   );

@@ -1,10 +1,14 @@
+import GNB from './features/gnb/GNB';
 import Timer from './features/timer/Timer';
 
 function App() {
   return (
-    <main>
-      <Timer />
-    </main>
+    <>
+      <GNB />
+      <main>
+        <Timer />
+      </main>
+    </>
   );
 }
 

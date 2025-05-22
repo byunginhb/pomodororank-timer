@@ -3,6 +3,7 @@ import { useTimerStore } from './useTimerStore';
 import { FiPlay, FiPause, FiRotateCw } from 'react-icons/fi';
 import styles from './Timer.module.css';
 import SvgCircleTimer from './SvgCircleTimer';
+import { useTranslation } from 'react-i18next';
 
 export default function Timer() {
   const {
@@ -17,6 +18,7 @@ export default function Timer() {
     tick,
   } = useTimerStore();
 
+  const { t } = useTranslation();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function Timer() {
                   : styles.presetBtnInactive,
                 isRunning ? styles.disabled : '',
               ].join(' ')}>
-              {m}분
+              {t('PRESET_MIN', { min: m })}
             </button>
           ))}
         </div>
@@ -65,17 +67,17 @@ export default function Timer() {
           {!isRunning ? (
             <button onClick={start} className={styles.startBtn}>
               <FiPlay className='text-2xl' />
-              시작
+              {t('START')}
             </button>
           ) : (
             <button onClick={pause} className={styles.pauseBtn}>
               <FiPause className='text-2xl' />
-              일시정지
+              {t('PAUSE')}
             </button>
           )}
           <button onClick={reset} className={styles.resetBtn}>
             <FiRotateCw className='text-2xl' />
-            리셋
+            {t('RESET')}
           </button>
         </div>
       </div>
