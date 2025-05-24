@@ -25,7 +25,7 @@ const resources = {
       FOCUS: '집중',
       BREAK: '휴식',
       PLAY: '재생',
-      PAUSE: '정지',
+      STOP: '정지',
     },
   },
   en: {
@@ -51,7 +51,7 @@ const resources = {
       FOCUS: 'Focus',
       BREAK: 'Break',
       PLAY: 'Play',
-      PAUSE: 'Pause',
+      STOP: 'Pause',
     },
   },
 };

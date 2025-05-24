@@ -147,7 +147,7 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
                       {isPlaying && playingSound === opt.value ? (
                         <>
                           <FiPause size={14} />
-                          <span className='text-xs'>{t('PAUSE')}</span>
+                          <span className='text-xs'>{t('STOP')}</span>
                         </>
                       ) : (
                         <>
