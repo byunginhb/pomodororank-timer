@@ -28,7 +28,7 @@ jobs:
 
       # 의존성 설치
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       # Firebase 배포
       - uses: FirebaseExtended/action-hosting-deploy@v0
