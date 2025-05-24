@@ -36,6 +36,6 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_POMODORO_RANK_TIMER }}
           projectId: pomodoro-rank-timer
           entryPoint: frontend
-          channelId: preview
+          target: production
         env:
           FIREBASE_CLI_EXPERIMENTS: webframeworks
