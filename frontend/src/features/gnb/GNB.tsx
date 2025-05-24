@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiMenu, FiX, FiChevronDown, FiPlay, FiVolume2 } from 'react-icons/fi';
+import {
+  FiMenu,
+  FiX,
+  FiChevronDown,
+  FiVolume2,
+  FiPause,
+  FiPlay,
+} from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
@@ -17,9 +24,10 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
   const { t, i18n } = useTranslation();
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [soundModalOpen, setSoundModalOpen] = useState(false);
+  const [soundOpen, setSoundOpen] = useState(false);
   const [selectedSound, setSelectedSound] = useState(SOUND_OPTIONS[0].value);
-  const [saveState, setSaveState] = useState<'idle' | 'saved'>('idle');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playingSound, setPlayingSound] = useState<string | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // localStorage에서 사운드 불러오기
@@ -31,34 +39,55 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
   }, []);
 
   // 저장 버튼 클릭 시 localStorage에 저장
-  const handleSaveSound = () => {
-    localStorage.setItem('alarmSound', selectedSound);
-    setSaveState('saved');
-    setTimeout(() => setSaveState('idle'), 1200);
+  const handleSaveSound = (value: string) => {
+    setSelectedSound(value);
+    localStorage.setItem('alarmSound', value);
+    setSoundOpen(false);
   };
 
   // 미리듣기
-  const handlePreview = () => {
-    if (selectedSound && previewAudioRef.current) {
+  const handlePreview = (value: string) => {
+    if (!previewAudioRef.current) return;
+
+    if (isPlaying && playingSound === value) {
+      // 현재 재생 중인 사운드를 정지
+      previewAudioRef.current.pause();
       previewAudioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setPlayingSound(null);
+    } else {
+      // 새로운 사운드 재생
+      if (isPlaying) {
+        previewAudioRef.current.pause();
+        previewAudioRef.current.currentTime = 0;
+      }
+      previewAudioRef.current.src = `/sounds/${value}`;
       previewAudioRef.current.play();
+      setIsPlaying(true);
+      setPlayingSound(value);
     }
   };
+
+  // 오디오 종료 시 상태 초기화
+  useEffect(() => {
+    const audio = previewAudioRef.current;
+    if (!audio) return;
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setPlayingSound(null);
+    };
+
+    audio.addEventListener('ended', handleEnded);
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, []);
 
   const handleLangSelect = (code: string) => {
     i18n.changeLanguage(code);
     setLangOpen(false);
   };
-
-  // 모달 닫기(ESC, 배경 클릭)
-  useEffect(() => {
-    if (!soundModalOpen) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSoundModalOpen(false);
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [soundModalOpen]);
 
   // 사운드명 다국어 변환
   const getSoundLabel = (value: string) => {
@@ -84,16 +113,55 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
       </div>
       {/* PC 메뉴 */}
       <div className='hidden md:flex items-center space-x-4'>
-        {/* 사운드 설정 메뉴 */}
-        <button
-          onClick={() => setSoundModalOpen(true)}
-          className='flex items-center px-3 py-1 rounded hover:bg-zinc-800 transition text-sm font-medium text-white focus:outline-none'
-          aria-haspopup='true'>
-          <FiVolume2 className='mr-1' />
-          <span className='mx-2 text-zinc-400 text-sm truncate max-w-[70px]'>
-            {getSoundLabel(selectedSound)}
-          </span>
-        </button>
+        {/* 사운드 설정 드롭다운 */}
+        <div className='relative'>
+          <button
+            onClick={() => setSoundOpen((v) => !v)}
+            className='flex items-center px-3 py-1 rounded hover:bg-zinc-800 transition text-sm font-medium text-white focus:outline-none'
+            aria-haspopup='true'>
+            <FiVolume2 className='mr-1' />
+            <span className='mx-2 text-zinc-400 text-sm truncate max-w-[70px]'>
+              {getSoundLabel(selectedSound)}
+            </span>
+            <FiChevronDown className='ml-1' />
+          </button>
+          {soundOpen && (
+            <div className='absolute right-0 mt-2 w-56 bg-zinc-800 rounded shadow-lg py-1 z-50 animate-fadeIn'>
+              {SOUND_OPTIONS.map((opt) => (
+                <div
+                  key={opt.value}
+                  className='flex w-56 items-center justify-between px-4 py-2 text-sm text-white hover:bg-zinc-700 transition'>
+                  <button
+                    className={`flex-1 text-left ${
+                      selectedSound === opt.value
+                        ? 'font-bold text-blue-400'
+                        : ''
+                    }`}
+                    onClick={() => handleSaveSound(opt.value)}>
+                    {t(opt.label)}
+                  </button>
+                  {opt.value && (
+                    <button
+                      onClick={() => handlePreview(opt.value)}
+                      className='ml-2 p-1 text-zinc-400 hover:text-white transition flex items-center gap-1'>
+                      {isPlaying && playingSound === opt.value ? (
+                        <>
+                          <FiPause size={14} />
+                          <span className='text-xs'>{t('PAUSE')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiPlay size={14} />
+                          <span className='text-xs'>{t('PLAY')}</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         {/* 언어 드롭다운 */}
         <div className='relative ml-2'>
           <button
@@ -133,7 +201,7 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
       {/* 모바일 메뉴 드로어 */}
       {mobileMenuOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden animate-fadeIn'>
-          <div className='w-2/3 max-w-xs  h-full p-6 flex flex-col space-y-6 shadow-lg'>
+          <div className='w-2/3 max-w-xs h-full p-6 flex flex-col space-y-6 shadow-lg'>
             <div className='flex justify-between items-center mb-4'>
               <div className='w-32 h-16 flex items-center'>
                 <img
@@ -149,21 +217,46 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
                 <FiX />
               </button>
             </div>
-            {/* 사운드 설정 메뉴 */}
-            <button
-              onClick={() => {
-                setSoundModalOpen(true);
-                setMobileMenuOpen(false);
-              }}
-              className='flex items-center w-full px-3 py-2 rounded text-sm font-medium text-white hover:bg-zinc-800 transition shadow-none justify-between'>
-              <span className='flex items-center'>
-                <FiVolume2 className='mr-2' />
+            {/* 사운드 설정 */}
+            <div>
+              <div className='text-xs text-zinc-400 mb-1'>
                 {t('SOUND_SETTINGS')}
-              </span>
-              <span className='text-zinc-400 text-xs truncate max-w-[70px]'>
-                {getSoundLabel(selectedSound)}
-              </span>
-            </button>
+              </div>
+              <div className='space-y-2'>
+                {SOUND_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.value}
+                    className='flex items-center justify-between px-3 py-2 rounded bg-zinc-800'>
+                    <button
+                      className={`flex-1 text-left text-sm ${
+                        selectedSound === opt.value
+                          ? 'text-blue-400 font-bold'
+                          : 'text-white'
+                      }`}
+                      onClick={() => handleSaveSound(opt.value)}>
+                      {t(opt.label)}
+                    </button>
+                    {opt.value && (
+                      <button
+                        onClick={() => handlePreview(opt.value)}
+                        className='ml-2 p-1 text-zinc-400 hover:text-white transition flex items-center gap-1'>
+                        {isPlaying && playingSound === opt.value ? (
+                          <>
+                            <FiPause size={14} />
+                            <span className='text-xs'>{t('PAUSE')}</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiPlay size={14} />
+                            <span className='text-xs'>{t('PLAY')}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             {/* 언어 선택 */}
             <div>
               <div className='text-xs text-zinc-400 mb-1'>{t('LANGUAGE')}</div>
@@ -189,59 +282,7 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
           </div>
         </div>
       )}
-      {/* 사운드 설정 모달 */}
-      {soundModalOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fadeIn'>
-          <div className='bg-zinc-900 rounded-lg shadow-xl p-6 w-80 relative flex flex-col items-center'>
-            <button
-              className='absolute top-2 right-2 text-zinc-400 hover:text-white text-2xl'
-              onClick={() => setSoundModalOpen(false)}
-              aria-label='닫기'>
-              <FiX />
-            </button>
-            <h2 className='text-lg font-bold text-white mb-4 flex items-center'>
-              <FiVolume2 className='mr-2' />
-              {t('ALARM_SOUND_SETTINGS')}
-            </h2>
-            <select
-              value={selectedSound}
-              onChange={(e) => setSelectedSound(e.target.value)}
-              className='rounded px-2 py-2 text-base bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full mb-3'>
-              {SOUND_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {t(opt.label)}
-                </option>
-              ))}
-            </select>
-            <button
-              type='button'
-              onClick={handlePreview}
-              disabled={!selectedSound}
-              className={`w-full mb-3 px-3 py-2 rounded text-sm font-semibold shadow transition-colors duration-200 flex items-center justify-center ${
-                selectedSound
-                  ? 'bg-zinc-700 text-white hover:bg-blue-500'
-                  : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-              }`}
-              title={t('PREVIEW')}>
-              <FiPlay className='mr-1' /> {t('PREVIEW')}
-              <audio
-                ref={previewAudioRef}
-                src={selectedSound ? `/sounds/${selectedSound}` : undefined}
-                preload='auto'
-              />
-            </button>
-            <button
-              onClick={handleSaveSound}
-              className={`w-full px-3 py-2 rounded text-base font-semibold shadow transition-colors duration-200 ${
-                saveState === 'saved'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-blue-500 text-white hover:bg-blue-600'
-              }`}>
-              {saveState === 'saved' ? t('SAVED') : t('SAVE')}
-            </button>
-          </div>
-        </div>
-      )}
+      <audio ref={previewAudioRef} preload='auto' />
     </nav>
   );
 };
