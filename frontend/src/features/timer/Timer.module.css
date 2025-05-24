@@ -15,6 +15,33 @@
   gap: 2.5rem;
   width: 100%;
   max-width: 32rem;
+  position: relative;
+  margin-top: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 64rem;
+    gap: 4rem;
+    margin-top: 2rem;
+  }
+
+  .timerContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .statsContainer {
+    position: sticky;
+    top: 2rem;
+    width: 24rem;
+    margin: 0;
+  }
 }
 
 .presetGroup {
@@ -90,6 +117,7 @@
   display: flex;
   gap: 1.25rem;
   margin-top: 0.5rem;
+  justify-content: center;
 }
 .startBtn {
   display: flex;
@@ -144,4 +172,105 @@
 }
 .resetBtn:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.statsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.statsSummary {
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statsItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statsLabel {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.statsValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Roboto Mono', 'Pretendard', monospace;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.sessionList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessionList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.sessionList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.sessionItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.sessionMode {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.sessionModeFocus {
+  background: rgba(30, 64, 175, 0.2);
+  color: #60a5fa;
+}
+
+.sessionModeBreak {
+  background: rgba(6, 95, 70, 0.2);
+  color: #34d399;
+}
+
+.sessionDuration {
+  font-family: 'Roboto Mono', 'Pretendard', monospace;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sessionDate {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
 }

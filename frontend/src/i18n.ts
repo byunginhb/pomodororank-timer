@@ -26,6 +26,9 @@ const resources = {
       BREAK: '휴식',
       PLAY: '재생',
       STOP: '정지',
+      TOTAL_FOCUS_TIME: '총 집중 시간',
+      TOTAL_BREAK_TIME: '총 휴식 시간',
+      COMPLETED_SESSIONS: '완료된 세션',
     },
   },
   en: {
@@ -52,6 +55,9 @@ const resources = {
       BREAK: 'Break',
       PLAY: 'Play',
       STOP: 'Pause',
+      TOTAL_FOCUS_TIME: 'Total Focus Time',
+      TOTAL_BREAK_TIME: 'Total Break Time',
+      COMPLETED_SESSIONS: 'Completed Sessions',
     },
   },
 };

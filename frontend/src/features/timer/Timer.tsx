@@ -38,6 +38,8 @@ export default function Timer({
     pause,
     reset,
     tick,
+    stats,
+    completeSession,
   } = useTimerStore();
 
   const { t } = useTranslation();
@@ -47,7 +49,7 @@ export default function Timer({
   const [selectedSound, setSelectedSound] = useState(SOUND_OPTIONS[0].value);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
 
-  const focusPresets = [5, 10, 25, 50];
+  const focusPresets = [0.5, 5, 10, 25, 50];
   const breakPresets = [5, 10, 20];
   const presets = mode === 'focus' ? focusPresets : breakPresets;
 
@@ -70,14 +72,15 @@ export default function Timer({
     };
   }, [isRunning, tick]);
 
-  // 타이머 종료 시 효과음 재생
+  // 타이머 종료 시 효과음 재생 및 통계 업데이트
   useEffect(() => {
     const currentTime = minutes * 60 + seconds;
     if (prevTimeRef.current > 0 && currentTime === 0 && selectedSound) {
       audioRef.current?.play();
+      completeSession(mode);
     }
     prevTimeRef.current = currentTime;
-  }, [minutes, seconds, selectedSound]);
+  }, [minutes, seconds, selectedSound, mode, completeSession]);
 
   // 알림 소리 재생 상태 관리
   useEffect(() => {
@@ -133,82 +136,149 @@ export default function Timer({
         </div>
       )}
       <div className={styles.container}>
-        {/* 모드 선택 버튼 */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 8,
-            justifyContent: 'center',
-            marginBottom: 16,
-          }}>
-          {MODE_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setMode(opt.key as 'focus' | 'break')}
-              style={{
-                padding: '0.5rem 1.5rem',
-                borderRadius: 9999,
-                fontWeight: 700,
-                fontSize: 16,
-                border:
-                  mode === opt.key ? '2px solid #fff' : '2px solid transparent',
-                background:
-                  mode === opt.key ? '#fff' : 'rgba(255,255,255,0.08)',
-                color: mode === opt.key ? '#18181b' : '#fff',
-                boxShadow:
-                  mode === opt.key ? '0 2px 8px 0 rgba(0,0,0,0.12)' : undefined,
-                transition: 'all 0.2s',
-                cursor: 'pointer',
-              }}
-              aria-pressed={mode === opt.key}>
-              {t(opt.label)}
+        {/* 타이머 컨텐츠 */}
+        <div className={styles.timerContent}>
+          {/* 모드 선택 버튼 */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              justifyContent: 'center',
+              marginBottom: 16,
+            }}>
+            {MODE_OPTIONS.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setMode(opt.key as 'focus' | 'break')}
+                style={{
+                  padding: '0.5rem 1.5rem',
+                  borderRadius: 9999,
+                  fontWeight: 700,
+                  fontSize: 16,
+                  border:
+                    mode === opt.key
+                      ? '2px solid #fff'
+                      : '2px solid transparent',
+                  background:
+                    mode === opt.key ? '#fff' : 'rgba(255,255,255,0.08)',
+                  color: mode === opt.key ? '#18181b' : '#fff',
+                  boxShadow:
+                    mode === opt.key
+                      ? '0 2px 8px 0 rgba(0,0,0,0.12)'
+                      : undefined,
+                  transition: 'all 0.2s',
+                  cursor: 'pointer',
+                }}
+                aria-pressed={mode === opt.key}>
+                {t(opt.label)}
+              </button>
+            ))}
+          </div>
+
+          {/* 프리셋 */}
+          <div className={styles.presetGroup}>
+            {presets.map((m) => (
+              <button
+                key={m}
+                disabled={isRunning}
+                onClick={() => setDuration(m)}
+                className={[
+                  styles.presetBtn,
+                  duration === m
+                    ? styles.presetBtnActive
+                    : styles.presetBtnInactive,
+                  isRunning ? styles.disabled : '',
+                ].join(' ')}>
+                {t('PRESET_MIN', { min: m })}
+              </button>
+            ))}
+          </div>
+
+          {/* 원형 타이머 */}
+          <SvgCircleTimer
+            minutes={minutes}
+            seconds={seconds}
+            duration={duration}
+            isRunning={isRunning}
+          />
+
+          {/* 버튼 */}
+          <div className={styles.buttonGroup}>
+            {!isRunning ? (
+              <button onClick={start} className={styles.startBtn}>
+                <FiPlay className='text-2xl' />
+                {t('START')}
+              </button>
+            ) : (
+              <button onClick={pause} className={styles.pauseBtn}>
+                <FiPause className='text-2xl' />
+                {t('PAUSE')}
+              </button>
+            )}
+            <button onClick={reset} className={styles.resetBtn}>
+              <FiRotateCw className='text-2xl' />
+              {t('RESET')}
             </button>
-          ))}
-        </div>
-        {/* 프리셋 */}
-        <div className={styles.presetGroup}>
-          {presets.map((m) => (
-            <button
-              key={m}
-              disabled={isRunning}
-              onClick={() => setDuration(m)}
-              className={[
-                styles.presetBtn,
-                duration === m
-                  ? styles.presetBtnActive
-                  : styles.presetBtnInactive,
-                isRunning ? styles.disabled : '',
-              ].join(' ')}>
-              {t('PRESET_MIN', { min: m })}
-            </button>
-          ))}
+          </div>
         </div>
 
-        {/* 원형 타이머 */}
-        <SvgCircleTimer
-          minutes={minutes}
-          seconds={seconds}
-          duration={duration}
-          isRunning={isRunning}
-        />
+        {/* 통계 표시 */}
+        <div className={styles.statsContainer}>
+          <div className={styles.statsSummary}>
+            <div className={styles.statsItem}>
+              <span className={styles.statsLabel}>{t('TOTAL_FOCUS_TIME')}</span>
+              <span className={styles.statsValue}>
+                {stats.totalFocusTime}분
+              </span>
+            </div>
+            <div className={styles.statsItem}>
+              <span className={styles.statsLabel}>{t('TOTAL_BREAK_TIME')}</span>
+              <span className={styles.statsValue}>
+                {stats.totalBreakTime}분
+              </span>
+            </div>
+            <div className={styles.statsItem}>
+              <span className={styles.statsLabel}>
+                {t('COMPLETED_SESSIONS')}
+              </span>
+              <span className={styles.statsValue}>
+                {stats.completedSessions}회
+              </span>
+            </div>
+          </div>
 
-        {/* 버튼 */}
-        <div className={styles.buttonGroup}>
-          {!isRunning ? (
-            <button onClick={start} className={styles.startBtn}>
-              <FiPlay className='text-2xl' />
-              {t('START')}
-            </button>
-          ) : (
-            <button onClick={pause} className={styles.pauseBtn}>
-              <FiPause className='text-2xl' />
-              {t('PAUSE')}
-            </button>
-          )}
-          <button onClick={reset} className={styles.resetBtn}>
-            <FiRotateCw className='text-2xl' />
-            {t('RESET')}
-          </button>
+          <div className={styles.sessionList}>
+            {stats.sessions.map((session) => {
+              const date = new Date(session.completedAt);
+              const formattedDate = `${date.getFullYear()}.${String(
+                date.getMonth() + 1
+              ).padStart(2, '0')}.${String(date.getDate()).padStart(
+                2,
+                '0'
+              )} ${String(date.getHours()).padStart(2, '0')}:${String(
+                date.getMinutes()
+              ).padStart(2, '0')}`;
+
+              return (
+                <div key={session.id} className={styles.sessionItem}>
+                  <span
+                    className={`${styles.sessionMode} ${
+                      styles[
+                        `sessionMode${
+                          session.mode === 'focus' ? 'Focus' : 'Break'
+                        }`
+                      ]
+                    }`}>
+                    {t(session.mode === 'focus' ? 'FOCUS' : 'BREAK')}
+                  </span>
+                  <span className={styles.sessionDuration}>
+                    {session.duration}분
+                  </span>
+                  <span className={styles.sessionDate}>{formattedDate}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
