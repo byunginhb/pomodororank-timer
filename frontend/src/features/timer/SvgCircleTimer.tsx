@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './Timer.module.css';
 import { useTranslation } from 'react-i18next';
 
 interface SvgCircleTimerProps {
@@ -40,13 +39,13 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
 
   return (
     <div
-      className={styles.svgWrapper}
+      className='relative flex items-center justify-center'
       style={{ width: SVG_SIZE, height: SVG_SIZE }}>
       <svg
         width={SVG_SIZE}
         height={SVG_SIZE}
         viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
-        className={styles.svg}>
+        className='block -rotate-90'>
         <circle
           cx={CENTER}
           cy={CENTER}
@@ -71,11 +70,11 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
           }}
         />
       </svg>
-      <div className={styles.centerText}>
-        <span className={styles.timeText}>
+      <div className='absolute inset-0 flex flex-col items-center justify-center select-none'>
+        <span className='text-5xl font-mono font-extrabold tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]'>
           {padded(minutes)}:{padded(seconds)}
         </span>
-        <span className={styles.durationText}>
+        <span className='mt-2 text-base text-white/60 font-medium tracking-wide'>
           {t('TIMER_LABEL', { min: duration })}
         </span>
       </div>

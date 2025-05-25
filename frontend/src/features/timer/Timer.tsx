@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTimerStore } from './useTimerStore';
 import { FiPlay, FiPause, FiRotateCw } from 'react-icons/fi';
-import styles from './Timer.module.css';
 import SvgCircleTimer from './SvgCircleTimer';
 import { useTranslation } from 'react-i18next';
 
@@ -49,7 +48,7 @@ export default function Timer({
   const [selectedSound, setSelectedSound] = useState(SOUND_OPTIONS[0].value);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
 
-  const focusPresets = [0.5, 5, 10, 25, 50];
+  const focusPresets = [5, 10, 25, 50];
   const breakPresets = [5, 10, 20];
   const presets = mode === 'focus' ? focusPresets : breakPresets;
 
@@ -117,7 +116,7 @@ export default function Timer({
 
   return (
     <div
-      className={styles.background}
+      className='min-h-screen flex items-center justify-center text-white px-2'
       style={{
         background:
           mode === 'focus'
@@ -135,39 +134,25 @@ export default function Timer({
           </button>
         </div>
       )}
-      <div className={styles.container}>
+      <div className='flex flex-col items-center gap-10 w-full max-w-2xl relative mt-20 lg:flex-row lg:items-start lg:max-w-4xl lg:gap-16 lg:mt-8'>
         {/* 타이머 컨텐츠 */}
-        <div className={styles.timerContent}>
+        <div className='flex flex-col items-center gap-10 flex-1'>
           {/* 모드 선택 버튼 */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 8,
-              justifyContent: 'center',
-              marginBottom: 16,
-            }}>
+          <div className='flex gap-2 justify-center mb-4'>
             {MODE_OPTIONS.map((opt) => (
               <button
                 key={opt.key}
                 onClick={() => setMode(opt.key as 'focus' | 'break')}
+                className={`py-2 px-6 rounded-full font-bold text-base border-2 transition-all duration-200 cursor-pointer ${
+                  mode === opt.key
+                    ? 'border-white bg-white text-zinc-900 shadow-lg'
+                    : 'border-transparent bg-white/10 text-white'
+                }`}
                 style={{
-                  padding: '0.5rem 1.5rem',
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: 16,
-                  border:
-                    mode === opt.key
-                      ? '2px solid #fff'
-                      : '2px solid transparent',
-                  background:
-                    mode === opt.key ? '#fff' : 'rgba(255,255,255,0.08)',
-                  color: mode === opt.key ? '#18181b' : '#fff',
                   boxShadow:
                     mode === opt.key
                       ? '0 2px 8px 0 rgba(0,0,0,0.12)'
                       : undefined,
-                  transition: 'all 0.2s',
-                  cursor: 'pointer',
                 }}
                 aria-pressed={mode === opt.key}>
                 {t(opt.label)}
@@ -176,19 +161,17 @@ export default function Timer({
           </div>
 
           {/* 프리셋 */}
-          <div className={styles.presetGroup}>
+          <div className='flex gap-3 mb-2'>
             {presets.map((m) => (
               <button
                 key={m}
                 disabled={isRunning}
                 onClick={() => setDuration(m)}
-                className={[
-                  styles.presetBtn,
+                className={`py-2 px-5 rounded-full text-base font-semibold transition-all shadow border border-white/10 backdrop-blur-sm ${
                   duration === m
-                    ? styles.presetBtnActive
-                    : styles.presetBtnInactive,
-                  isRunning ? styles.disabled : '',
-                ].join(' ')}>
+                    ? 'bg-white text-zinc-900 shadow-lg scale-105'
+                    : 'bg-white/10 text-white hover:bg-white/20 hover:scale-105'
+                } ${isRunning ? 'opacity-60 cursor-not-allowed' : ''}`}>
                 {t('PRESET_MIN', { min: m })}
               </button>
             ))}
@@ -203,19 +186,25 @@ export default function Timer({
           />
 
           {/* 버튼 */}
-          <div className={styles.buttonGroup}>
+          <div className='flex gap-5 mt-2 justify-center'>
             {!isRunning ? (
-              <button onClick={start} className={styles.startBtn}>
+              <button
+                onClick={start}
+                className='flex items-center gap-2 py-4 px-8 bg-cyan-500 text-white rounded-xl text-lg font-bold shadow-lg transition-all border-none outline-none hover:bg-cyan-300'>
                 <FiPlay className='text-2xl' />
                 {t('START')}
               </button>
             ) : (
-              <button onClick={pause} className={styles.pauseBtn}>
+              <button
+                onClick={pause}
+                className='flex items-center gap-2 py-4 px-8 bg-yellow-300 text-zinc-900 rounded-xl text-lg font-bold shadow-lg transition-all border-none outline-none hover:bg-yellow-200'>
                 <FiPause className='text-2xl' />
                 {t('PAUSE')}
               </button>
             )}
-            <button onClick={reset} className={styles.resetBtn}>
+            <button
+              onClick={reset}
+              className='flex items-center gap-2 py-4 px-8 bg-white/10 text-white rounded-xl text-lg font-bold shadow-lg transition-all border-none outline-none hover:bg-white/20'>
               <FiRotateCw className='text-2xl' />
               {t('RESET')}
             </button>
@@ -223,31 +212,38 @@ export default function Timer({
         </div>
 
         {/* 통계 표시 */}
-        <div className={styles.statsContainer}>
-          <div className={styles.statsSummary}>
-            <div className={styles.statsItem}>
-              <span className={styles.statsLabel}>{t('TOTAL_FOCUS_TIME')}</span>
-              <span className={styles.statsValue}>
-                {stats.totalFocusTime}분
+        <div className='flex flex-col gap-6 mb-8 p-6 bg-white/10 rounded-xl backdrop-blur-lg border border-white/10 w-full lg:w-96 sticky top-8'>
+          <div className='flex gap-8 pb-6 border-b border-white/10'>
+            <div className='flex flex-col items-center gap-2'>
+              <span className='text-sm text-white/60 font-medium'>
+                {t('TOTAL_FOCUS_TIME')}
+              </span>
+              <span className='text-2xl font-bold text-white font-mono'>
+                {stats.totalFocusTime}
+                {t('MINUTES')}
               </span>
             </div>
-            <div className={styles.statsItem}>
-              <span className={styles.statsLabel}>{t('TOTAL_BREAK_TIME')}</span>
-              <span className={styles.statsValue}>
-                {stats.totalBreakTime}분
+            <div className='flex flex-col items-center gap-2'>
+              <span className='text-sm text-white/60 font-medium'>
+                {t('TOTAL_BREAK_TIME')}
+              </span>
+              <span className='text-2xl font-bold text-white font-mono'>
+                {stats.totalBreakTime}
+                {t('MINUTES')}
               </span>
             </div>
-            <div className={styles.statsItem}>
-              <span className={styles.statsLabel}>
+            <div className='flex flex-col items-center gap-2'>
+              <span className='text-sm text-white/60 font-medium'>
                 {t('COMPLETED_SESSIONS')}
               </span>
-              <span className={styles.statsValue}>
-                {stats.completedSessions}회
+              <span className='text-2xl font-bold text-white font-mono'>
+                {stats.completedSessions}
+                {t('SESSIONS')}
               </span>
             </div>
           </div>
 
-          <div className={styles.sessionList}>
+          <div className='flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2'>
             {stats.sessions.map((session) => {
               const date = new Date(session.completedAt);
               const formattedDate = `${date.getFullYear()}.${String(
@@ -260,21 +256,24 @@ export default function Timer({
               ).padStart(2, '0')}`;
 
               return (
-                <div key={session.id} className={styles.sessionItem}>
+                <div
+                  key={session.id}
+                  className='flex items-center gap-4 p-3 bg-white/5 rounded-lg text-sm'>
                   <span
-                    className={`${styles.sessionMode} ${
-                      styles[
-                        `sessionMode${
-                          session.mode === 'focus' ? 'Focus' : 'Break'
-                        }`
-                      ]
+                    className={`py-1 px-3 rounded-full font-semibold text-xs ${
+                      session.mode === 'focus'
+                        ? 'bg-blue-900/20 text-blue-400'
+                        : 'bg-emerald-800/20 text-emerald-400'
                     }`}>
                     {t(session.mode === 'focus' ? 'FOCUS' : 'BREAK')}
                   </span>
-                  <span className={styles.sessionDuration}>
-                    {session.duration}분
+                  <span className='font-mono text-white/80'>
+                    {session.duration}
+                    {t('MINUTES')}
                   </span>
-                  <span className={styles.sessionDate}>{formattedDate}</span>
+                  <span className='ml-auto text-white/50 text-xs'>
+                    {formattedDate}
+                  </span>
                 </div>
               );
             })}
