@@ -31,6 +31,7 @@ const resources = {
       TOTAL_FOCUS_TIME: '총 집중 시간',
       TOTAL_BREAK_TIME: '총 휴식 시간',
       COMPLETED_SESSIONS: '완료된 세션',
+      STOP_ALARM: '알림 끄기',
     },
   },
   en: {
@@ -62,6 +63,7 @@ const resources = {
       TOTAL_FOCUS_TIME: 'Total Focus Time',
       TOTAL_BREAK_TIME: 'Total Break Time',
       COMPLETED_SESSIONS: 'Completed Sessions',
+      STOP_ALARM: 'Stop Alarm',
     },
   },
 };

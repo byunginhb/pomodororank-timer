@@ -6,6 +6,7 @@ interface SvgCircleTimerProps {
   seconds: number;
   duration: number;
   isRunning: boolean;
+  hideTime?: boolean;
 }
 
 const CIRCLE_RADIUS = 150;
@@ -29,6 +30,7 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
   minutes,
   seconds,
   duration,
+  hideTime = false,
 }) => {
   const { t } = useTranslation();
   const totalSeconds = duration * 60;
@@ -71,12 +73,16 @@ const SvgCircleTimer: React.FC<SvgCircleTimerProps> = ({
         />
       </svg>
       <div className='absolute inset-0 flex flex-col items-center justify-center select-none'>
-        <span className='text-5xl font-mono font-extrabold tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]'>
-          {padded(minutes)}:{padded(seconds)}
-        </span>
-        <span className='mt-2 text-base text-white/60 font-medium tracking-wide'>
-          {t('TIMER_LABEL', { min: duration })}
-        </span>
+        {!hideTime && (
+          <>
+            <span className='text-5xl font-mono font-extrabold tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]'>
+              {padded(minutes)}:{padded(seconds)}
+            </span>
+            <span className='mt-2 text-base text-white/60 font-medium tracking-wide'>
+              {t('TIMER_LABEL', { min: duration })}
+            </span>
+          </>
+        )}
       </div>
     </div>
   );
