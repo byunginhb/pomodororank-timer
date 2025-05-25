@@ -28,7 +28,7 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
             {t('TOTAL_FOCUS_TIME')}
           </span>
           <span className='text-2xl font-bold text-white font-mono'>
-            {stats.totalFocusTime}분
+            {Math.floor(stats.totalFocusTime)}분
           </span>
         </div>
         <div className='flex flex-col items-center gap-2'>
@@ -36,7 +36,7 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
             {t('TOTAL_BREAK_TIME')}
           </span>
           <span className='text-2xl font-bold text-white font-mono'>
-            {stats.totalBreakTime}분
+            {Math.floor(stats.totalBreakTime)}분
           </span>
         </div>
         <div className='flex flex-col items-center gap-2'>
@@ -73,7 +73,7 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
                 {t(session.mode === 'focus' ? 'FOCUS' : 'BREAK')}
               </span>
               <span className='font-mono text-white/80'>
-                {session.duration}분
+                {Math.floor(session.duration)}분
               </span>
               <span className='ml-auto text-white/50 text-xs'>
                 {formattedDate}
