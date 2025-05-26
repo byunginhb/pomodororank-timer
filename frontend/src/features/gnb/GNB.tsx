@@ -8,6 +8,14 @@ import {
   FiPlay,
 } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from 'firebase/auth';
+import type { User } from 'firebase/auth';
+import { app } from '../../constants/constants';
 
 const LANGUAGES = [
   { code: 'ko', label: '한국어' },
@@ -29,6 +37,35 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Firebase Auth 상태
+  const [user, setUser] = useState<User | null>(null);
+  const auth = getAuth(app);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // 로그인 성공 시 onAuthStateChanged에서 user가 자동으로 세팅됨
+    } catch {
+      alert('구글 로그인에 실패했습니다.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      alert('로그아웃에 실패했습니다.');
+    }
+  };
 
   // localStorage에서 사운드 불러오기
   useEffect(() => {
@@ -185,10 +222,25 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
             </div>
           )}
         </div>
-        {/* 로그인 버튼 */}
-        <button className='ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition font-semibold text-sm shadow'>
-          {t('LOGIN')}
-        </button>
+        {/* 로그인/로그아웃 버튼 */}
+        {user ? (
+          <div className='flex items-center space-x-2'>
+            <span className='text-white text-sm font-medium'>
+              {user.displayName || user.email}
+            </span>
+            <button
+              className='ml-2 px-4 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-800 transition font-semibold text-sm shadow'
+              onClick={handleLogout}>
+              {t('LOGOUT')}
+            </button>
+          </div>
+        ) : (
+          <button
+            className='ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition font-semibold text-sm shadow'
+            onClick={handleGoogleLogin}>
+            {t('LOGIN')}
+          </button>
+        )}
       </div>
       {/* 모바일 메뉴 버튼 */}
       <div className='md:hidden flex items-center'>
@@ -275,10 +327,20 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
                 ))}
               </div>
             </div>
-            {/* 로그인 버튼 */}
-            <button className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition font-semibold text-sm shadow w-full'>
-              {t('LOGIN')}
-            </button>
+            {/* 로그인/로그아웃 버튼 */}
+            {user ? (
+              <button
+                className='px-4 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-800 transition font-semibold text-sm shadow w-full'
+                onClick={handleLogout}>
+                {t('LOGOUT')}
+              </button>
+            ) : (
+              <button
+                className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition font-semibold text-sm shadow w-full'
+                onClick={handleGoogleLogin}>
+                {t('LOGIN')}
+              </button>
+            )}
           </div>
         </div>
       )}
