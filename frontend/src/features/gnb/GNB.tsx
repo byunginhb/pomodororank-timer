@@ -6,6 +6,8 @@ import {
   FiVolume2,
   FiPause,
   FiPlay,
+  FiClock,
+  FiAward,
 } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import {
@@ -24,7 +26,9 @@ import {
   collection,
   query,
   where,
+  updateDoc,
 } from 'firebase/firestore';
+import { Link, useLocation } from 'react-router-dom';
 
 const LANGUAGES = [
   { code: 'ko', label: '한국어' },
@@ -39,6 +43,7 @@ const SOUND_OPTIONS = [
 
 const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [soundOpen, setSoundOpen] = useState(false);
@@ -86,18 +91,25 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
     }
   };
 
-  // localStorage에서 사운드 불러오기
+  // 사운드 설정 Firestore에서 불러오기
   useEffect(() => {
-    const saved = localStorage.getItem('alarmSound');
-    if (saved !== null && SOUND_OPTIONS.some((opt) => opt.value === saved)) {
-      setSelectedSound(saved);
-    }
-  }, []);
+    if (!user) return;
+    (async () => {
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && userSnap.data().alarmSound) {
+        setSelectedSound(userSnap.data().alarmSound);
+      }
+    })();
+  }, [user]);
 
-  // 저장 버튼 클릭 시 localStorage에 저장
-  const handleSaveSound = (value: string) => {
+  // 저장 버튼 클릭 시 Firestore에 저장
+  const handleSaveSound = async (value: string) => {
     setSelectedSound(value);
-    localStorage.setItem('alarmSound', value);
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, { alarmSound: value });
+    }
     setSoundOpen(false);
   };
 
@@ -395,6 +407,31 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
               </div>
             )}
           </div>
+          {/* 네비게이션 탭 */}
+          <nav className='flex items-center gap-1 ml-4 bg-zinc-900/60 rounded-xl px-2 py-1 shadow-inner'>
+            <Link
+              to='/'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                ${
+                  location.pathname === '/'
+                    ? 'bg-blue-600 text-white shadow'
+                    : 'text-blue-200 hover:bg-blue-800/40'
+                }`}>
+              <FiClock className='text-lg' />
+              {t('TIMER')}
+            </Link>
+            <Link
+              to='/rank'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                ${
+                  location.pathname.startsWith('/rank')
+                    ? 'bg-purple-600 text-white shadow'
+                    : 'text-purple-200 hover:bg-purple-800/40'
+                }`}>
+              <FiAward className='text-lg' />
+              {t('RANK')}
+            </Link>
+          </nav>
           {/* 로그인/로그아웃 버튼 */}
           {user ? (
             <div className='flex items-center space-x-2'>
@@ -502,6 +539,33 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
                   ))}
                 </div>
               </div>
+              {/* 네비게이션 탭 (모바일) */}
+              <nav className='flex items-center gap-2 mb-2'>
+                <Link
+                  to='/'
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                    ${
+                      location.pathname === '/'
+                        ? 'bg-blue-600 text-white shadow'
+                        : 'text-blue-200 hover:bg-blue-800/40'
+                    }`}
+                  onClick={() => setMobileMenuOpen(false)}>
+                  <FiClock className='text-lg' />
+                  {t('TIMER')}
+                </Link>
+                <Link
+                  to='/rank'
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                    ${
+                      location.pathname.startsWith('/rank')
+                        ? 'bg-purple-600 text-white shadow'
+                        : 'text-purple-200 hover:bg-purple-800/40'
+                    }`}
+                  onClick={() => setMobileMenuOpen(false)}>
+                  <FiAward className='text-lg' />
+                  {t('RANK')}
+                </Link>
+              </nav>
               {/* 로그인/로그아웃 버튼 */}
               {user ? (
                 <button

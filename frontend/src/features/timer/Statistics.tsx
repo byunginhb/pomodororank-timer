@@ -28,7 +28,8 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
             {t('TOTAL_FOCUS_TIME')}
           </span>
           <span className='text-2xl font-bold text-white font-mono'>
-            {Math.floor(stats.totalFocusTime)}분
+            {Math.floor(stats.totalFocusTime)}
+            {t('MINUTES_UNIT')}
           </span>
         </div>
         <div className='flex flex-col items-center gap-2'>
@@ -36,7 +37,8 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
             {t('TOTAL_BREAK_TIME')}
           </span>
           <span className='text-2xl font-bold text-white font-mono'>
-            {Math.floor(stats.totalBreakTime)}분
+            {Math.floor(stats.totalBreakTime)}
+            {t('MINUTES_UNIT')}
           </span>
         </div>
         <div className='flex flex-col items-center gap-2'>
@@ -44,7 +46,8 @@ const Statistics: React.FC<StatisticsProps> = ({ stats, t }) => {
             {t('COMPLETED_SESSIONS')}
           </span>
           <span className='text-2xl font-bold text-white font-mono'>
-            {stats.completedSessions}회
+            {stats.completedSessions}
+            {t('SESSIONS_UNIT')}
           </span>
         </div>
       </div>

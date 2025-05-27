@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { getAuth } from 'firebase/auth';
+import { db } from '../../constants/constants';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 interface TimerSession {
   id: string;
@@ -30,11 +33,14 @@ interface TimerState {
   completeSession: (mode: 'focus' | 'break') => void;
 }
 
-const loadStats = (): TimerStats => {
-  const saved = localStorage.getItem('timerStats');
-  if (saved) {
-    return JSON.parse(saved);
-  }
+const loadStats = async (uid: string): Promise<TimerStats> => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists() && userSnap.data().timerStats) {
+      return userSnap.data().timerStats;
+    }
+  } catch {}
   return {
     totalFocusTime: 0,
     totalBreakTime: 0,
@@ -44,13 +50,26 @@ const loadStats = (): TimerStats => {
   };
 };
 
+const saveStats = async (uid: string, stats: TimerStats) => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, { timerStats: stats });
+  } catch {}
+};
+
 export const useTimerStore = create(
   devtools<TimerState>((set, get) => ({
     duration: 25,
     minutes: 25,
     seconds: 0,
     isRunning: false,
-    stats: loadStats(),
+    stats: {
+      totalFocusTime: 0,
+      totalBreakTime: 0,
+      completedSessions: 0,
+      lastSessionDate: null,
+      sessions: [],
+    },
 
     setDuration: (minutes) =>
       set(
@@ -104,7 +123,7 @@ export const useTimerStore = create(
       );
     },
 
-    completeSession: (mode) => {
+    completeSession: async (mode) => {
       const { stats, duration } = get();
       const now = new Date();
       const session: TimerSession = {
@@ -113,7 +132,6 @@ export const useTimerStore = create(
         duration,
         completedAt: now.toISOString(),
       };
-
       const newStats = {
         ...stats,
         totalFocusTime:
@@ -126,10 +144,13 @@ export const useTimerStore = create(
             : stats.totalBreakTime,
         completedSessions: stats.completedSessions + 1,
         lastSessionDate: now.toISOString(),
-        sessions: [session, ...stats.sessions].slice(0, 50), // 최근 50개 세션만 유지
+        sessions: [session, ...stats.sessions].slice(0, 50),
       };
-
-      localStorage.setItem('timerStats', JSON.stringify(newStats));
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        await saveStats(user.uid, newStats);
+      }
       set({ stats: newStats }, false, 'completeSession');
     },
   }))
