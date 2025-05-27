@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTimerStore } from './useTimerStore';
-
 import SvgCircleTimer from './SvgCircleTimer';
 import { useTranslation } from 'react-i18next';
 import Statistics from './Statistics';
 import ModeSelector from './ModeSelector';
 import PresetSelector from './PresetSelector';
 import TimerController from './TimerController';
+import { Helmet } from 'react-helmet-async';
 
 const SOUND_OPTIONS = [
   {
@@ -40,7 +40,7 @@ export default function Timer({
     completeSession,
   } = useTimerStore();
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevTimeRef = useRef<number>(minutes * 60 + seconds);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -113,64 +113,96 @@ export default function Timer({
     setIsAlarmPlaying(false);
   };
 
+  // SEO 메타 태그
+  const title =
+    i18n.language === 'ko'
+      ? '뽀모도로 타이머 | 집중 · 휴식 · 랭킹 | Pomodoro Rank Timer'
+      : 'Pomodoro Timer | Focus · Break · Ranking | Pomodoro Rank Timer';
+  const description =
+    i18n.language === 'ko'
+      ? '뽀모도로 타이머, 집중 시간 측정, 휴식, 랭킹, 소속별 순위, 타이머, Pomodoro, Timer, Focus, Break, Ranking, Productivity, 공부, 업무, 시간관리'
+      : 'Pomodoro timer, focus time tracking, break, ranking, affiliation ranking, timer, Pomodoro, Timer, Focus, Break, Ranking, Productivity, Study, Work, Time management';
+  const keywords =
+    i18n.language === 'ko'
+      ? '뽀모도로, 타이머, 집중, 휴식, 랭킹, 순위, 소속, 공부, 업무, 시간관리, Pomodoro, Timer, Focus, Break, Ranking, Productivity'
+      : 'pomodoro, timer, focus, break, ranking, affiliation, study, work, time management, productivity, Pomodoro, Timer, Focus, Break, Ranking';
+
   return (
-    <div
-      className='min-h-screen flex items-center justify-center text-white px-2'
-      style={{
-        background:
-          mode === 'focus'
-            ? 'linear-gradient(135deg, #1e293b 0%, #1e40af 60%, #1e293b 100%)'
-            : 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #064e3b 100%)',
-        transition: 'background 0.5s',
-      }}>
-      <audio ref={audioRef} src={`/sounds/${selectedSound}`} preload='auto' />
-      <div className='flex flex-col items-center gap-10 w-full max-w-2xl relative mt-20 lg:flex-row lg:items-start lg:max-w-4xl lg:gap-16 lg:mt-8'>
-        {/* 타이머 컨텐츠 */}
-        <div className='flex flex-col items-center gap-10 flex-1'>
-          {/* 모드 선택 버튼 */}
-          <ModeSelector mode={mode} setMode={setMode} t={t} />
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name='description' content={description} />
+        <meta name='keywords' content={keywords} />
+        <meta property='og:title' content={title} />
+        <meta property='og:description' content={description} />
+        <meta property='og:type' content='website' />
+        <meta property='og:site_name' content='Pomodoro Rank Timer' />
+        <meta
+          property='og:locale'
+          content={i18n.language === 'ko' ? 'ko_KR' : 'en_US'}
+        />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:title' content={title} />
+        <meta name='twitter:description' content={description} />
+      </Helmet>
+      <div
+        className='min-h-screen flex items-center justify-center text-white px-2'
+        style={{
+          background:
+            mode === 'focus'
+              ? 'linear-gradient(135deg, #1e293b 0%, #1e40af 60%, #1e293b 100%)'
+              : 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #064e3b 100%)',
+          transition: 'background 0.5s',
+        }}>
+        <audio ref={audioRef} src={`/sounds/${selectedSound}`} preload='auto' />
+        <div className='flex flex-col items-center gap-10 w-full max-w-2xl relative mt-20 lg:flex-row lg:items-start lg:max-w-4xl lg:gap-16 lg:mt-8'>
+          {/* 타이머 컨텐츠 */}
+          <div className='flex flex-col items-center gap-10 flex-1'>
+            {/* 모드 선택 버튼 */}
+            <ModeSelector mode={mode} setMode={setMode} t={t} />
 
-          {/* 프리셋 */}
-          <PresetSelector
-            presets={presets}
-            duration={duration}
-            isRunning={isRunning}
-            setDuration={setDuration}
-            t={t}
-          />
-
-          {/* 원형 타이머 + 알림끄기 버튼 오버레이 */}
-          <div className='relative flex items-center justify-center'>
-            <SvgCircleTimer
-              minutes={minutes}
-              seconds={seconds}
+            {/* 프리셋 */}
+            <PresetSelector
+              presets={presets}
               duration={duration}
               isRunning={isRunning}
-              hideTime={isAlarmPlaying}
+              setDuration={setDuration}
+              t={t}
             />
-            {isAlarmPlaying && (
-              <button
-                onClick={handleStopAlarm}
-                className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold shadow-2xl animate-pulse hover:bg-red-500 transition z-20 border-2 border-white/100'
-                style={{ minWidth: 120 }}>
-                {t('STOP_ALARM')}
-              </button>
-            )}
+
+            {/* 원형 타이머 + 알림끄기 버튼 오버레이 */}
+            <div className='relative flex items-center justify-center'>
+              <SvgCircleTimer
+                minutes={minutes}
+                seconds={seconds}
+                duration={duration}
+                isRunning={isRunning}
+                hideTime={isAlarmPlaying}
+              />
+              {isAlarmPlaying && (
+                <button
+                  onClick={handleStopAlarm}
+                  className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 flex items-center justify-center rounded-full bg-red-400 text-white text-xl font-bold shadow-2xl animate-pulse hover:bg-red-500 transition z-20 border-2 border-white/100'
+                  style={{ minWidth: 120 }}>
+                  {t('STOP_ALARM')}
+                </button>
+              )}
+            </div>
+
+            {/* 버튼 */}
+            <TimerController
+              isRunning={isRunning}
+              start={start}
+              pause={pause}
+              reset={reset}
+              t={t}
+            />
           </div>
 
-          {/* 버튼 */}
-          <TimerController
-            isRunning={isRunning}
-            start={start}
-            pause={pause}
-            reset={reset}
-            t={t}
-          />
+          {/* 통계 표시 */}
+          <Statistics stats={stats} t={t} />
         </div>
-
-        {/* 통계 표시 */}
-        <Statistics stats={stats} t={t} />
       </div>
-    </div>
+    </>
   );
 }

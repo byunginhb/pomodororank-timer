@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '../../constants/constants';
 import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
 
 interface UserRank {
   uid: string;
@@ -22,12 +23,26 @@ type RankType = 'focus' | 'break' | 'sum';
 type RankView = 'personal' | 'affiliation';
 
 const Rank: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [users, setUsers] = useState<UserRank[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [rankView, setRankView] = useState<RankView>('personal');
   const [rankType, setRankType] = useState<RankType>('focus');
+
+  // SEO 메타 태그
+  const title =
+    i18n.language === 'ko'
+      ? '뽀모도로 랭킹 | 집중 · 휴식 · 소속별 순위 | Pomodoro Rank Timer'
+      : 'Pomodoro Ranking | Focus · Break · Affiliation | Pomodoro Rank Timer';
+  const description =
+    i18n.language === 'ko'
+      ? '뽀모도로 랭킹, 집중 시간, 휴식, 소속별 순위, 타이머, Pomodoro, Timer, Focus, Break, Ranking, Productivity, 공부, 업무, 시간관리'
+      : 'Pomodoro ranking, focus time, break, affiliation ranking, timer, Pomodoro, Timer, Focus, Break, Ranking, Productivity, Study, Work, Time management';
+  const keywords =
+    i18n.language === 'ko'
+      ? '뽀모도로, 타이머, 집중, 휴식, 랭킹, 순위, 소속, 공부, 업무, 시간관리, Pomodoro, Timer, Focus, Break, Ranking, Productivity'
+      : 'pomodoro, timer, focus, break, ranking, affiliation, study, work, time management, productivity, Pomodoro, Timer, Focus, Break, Ranking';
 
   useEffect(() => {
     setLoading(true);
@@ -109,214 +124,232 @@ const Rank: React.FC = () => {
   };
 
   return (
-    <div className='min-h-screen pt-24 pb-12 px-4 bg-gradient-to-br from-slate-900 via-gray-900 to-black'>
-      <div className='max-w-2xl mx-auto'>
-        {/* 타이틀 */}
-        <div className='text-center mb-8'>
-          <h1 className='text-4xl font-bold text-white mb-2'>
-            {t('RANKING_TITLE')}
-          </h1>
-          <p className='text-zinc-400'>
-            {t('TOP_10_RANKING', {
-              type:
-                rankType === 'focus'
-                  ? t('FOCUS')
-                  : rankType === 'break'
-                  ? t('BREAK')
-                  : t('TOTAL'),
-            })}
-          </p>
-        </div>
-
-        {/* 랭킹 타입 컨트롤 */}
-        <div className='backdrop-blur-md bg-white/10 rounded-2xl p-6 shadow-lg mb-6'>
-          <div className='flex flex-col gap-4'>
-            {/* 개인/소속 선택 */}
-            <div className='flex gap-2 justify-center'>
-              <button
-                className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
-                  rankView === 'personal'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-                onClick={() => setRankView('personal')}>
-                {t('PERSONAL_RANKING')}
-              </button>
-              <button
-                className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
-                  rankView === 'affiliation'
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-                onClick={() => setRankView('affiliation')}>
-                {t('AFFILIATION_RANKING')}
-              </button>
-            </div>
-
-            {/* 시간 타입 선택 */}
-            <div className='flex gap-2 justify-center'>
-              <button
-                className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+    <>
+      <Helmet>
+        <title>{title}</title>
+        <meta name='description' content={description} />
+        <meta name='keywords' content={keywords} />
+        <meta property='og:title' content={title} />
+        <meta property='og:description' content={description} />
+        <meta property='og:type' content='website' />
+        <meta property='og:site_name' content='Pomodoro Rank Timer' />
+        <meta
+          property='og:locale'
+          content={i18n.language === 'ko' ? 'ko_KR' : 'en_US'}
+        />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:title' content={title} />
+        <meta name='twitter:description' content={description} />
+      </Helmet>
+      <div className='min-h-screen pt-24 pb-12 px-4 bg-gradient-to-br from-slate-900 via-gray-900 to-black'>
+        <div className='max-w-2xl mx-auto'>
+          {/* 타이틀 */}
+          <div className='text-center mb-8'>
+            <h1 className='text-4xl font-bold text-white mb-2'>
+              {t('RANKING_TITLE')}
+            </h1>
+            <p className='text-zinc-400'>
+              {t('TOP_10_RANKING', {
+                type:
                   rankType === 'focus'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-                onClick={() => setRankType('focus')}>
-                {t('FOCUS')}
-              </button>
-              <button
-                className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
-                  rankType === 'break'
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-                onClick={() => setRankType('break')}>
-                {t('BREAK')}
-              </button>
-              <button
-                className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
-                  rankType === 'sum'
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
-                onClick={() => setRankType('sum')}>
-                {t('TOTAL')}
-              </button>
+                    ? t('FOCUS')
+                    : rankType === 'break'
+                    ? t('BREAK')
+                    : t('TOTAL'),
+              })}
+            </p>
+          </div>
+
+          {/* 랭킹 타입 컨트롤 */}
+          <div className='backdrop-blur-md bg-white/10 rounded-2xl p-6 shadow-lg mb-6'>
+            <div className='flex flex-col gap-4'>
+              {/* 개인/소속 선택 */}
+              <div className='flex gap-2 justify-center'>
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                    rankView === 'personal'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                  onClick={() => setRankView('personal')}>
+                  {t('PERSONAL_RANKING')}
+                </button>
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                    rankView === 'affiliation'
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                  onClick={() => setRankView('affiliation')}>
+                  {t('AFFILIATION_RANKING')}
+                </button>
+              </div>
+
+              {/* 시간 타입 선택 */}
+              <div className='flex gap-2 justify-center'>
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                    rankType === 'focus'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                  onClick={() => setRankType('focus')}>
+                  {t('FOCUS')}
+                </button>
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                    rankType === 'break'
+                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                  onClick={() => setRankType('break')}>
+                  {t('BREAK')}
+                </button>
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-semibold transition-all duration-200 ${
+                    rankType === 'sum'
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                  onClick={() => setRankType('sum')}>
+                  {t('TOTAL')}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* 랭킹 테이블 */}
-        <div className='backdrop-blur-md bg-white/10 rounded-2xl overflow-hidden shadow-lg'>
-          {loading ? (
-            <div className='text-center text-white py-20'>
-              <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
-              {t('LOADING')}
-            </div>
-          ) : error ? (
-            <div className='text-center text-red-400 py-20'>{error}</div>
-          ) : (
-            <div className='overflow-x-auto'>
-              <table className='w-full'>
-                <thead>
-                  <tr className='border-b border-white/10'>
-                    <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
-                      {t('RANK')}
-                    </th>
-                    {rankView === 'personal' ? (
-                      <>
-                        <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
-                          {t('NICKNAME')}
-                        </th>
-                        <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
-                          {t('AFFILIATION')}
-                        </th>
-                      </>
-                    ) : (
-                      <>
-                        <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
-                          {t('AFFILIATION')}
-                        </th>
-                        <th className='py-4 px-6 text-center text-sm font-semibold text-white/70'>
-                          {t('MEMBERS')}
-                        </th>
-                      </>
-                    )}
-                    <th className='py-4 px-6 text-right text-sm font-semibold text-white/70'>
-                      {rankType === 'focus'
-                        ? t('TOTAL_FOCUS_TIME')
-                        : rankType === 'break'
-                        ? t('TOTAL_BREAK_TIME')
-                        : t('TOTAL_TIME')}{' '}
-                      ({t('TIME_UNIT')})
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(rankView === 'personal'
-                    ? personalRanking
-                    : affiliationRanking
-                  ).length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className='text-center py-12 text-white/50'>
-                        {t('NO_DATA')}
-                      </td>
+          {/* 랭킹 테이블 */}
+          <div className='backdrop-blur-md bg-white/10 rounded-2xl overflow-hidden shadow-lg'>
+            {loading ? (
+              <div className='text-center text-white py-20'>
+                <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
+                {t('LOADING')}
+              </div>
+            ) : error ? (
+              <div className='text-center text-red-400 py-20'>{error}</div>
+            ) : (
+              <div className='overflow-x-auto'>
+                <table className='w-full'>
+                  <thead>
+                    <tr className='border-b border-white/10'>
+                      <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
+                        {t('RANK')}
+                      </th>
+                      {rankView === 'personal' ? (
+                        <>
+                          <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
+                            {t('NICKNAME')}
+                          </th>
+                          <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
+                            {t('AFFILIATION')}
+                          </th>
+                        </>
+                      ) : (
+                        <>
+                          <th className='py-4 px-6 text-left text-sm font-semibold text-white/70'>
+                            {t('AFFILIATION')}
+                          </th>
+                          <th className='py-4 px-6 text-center text-sm font-semibold text-white/70'>
+                            {t('MEMBERS')}
+                          </th>
+                        </>
+                      )}
+                      <th className='py-4 px-6 text-right text-sm font-semibold text-white/70'>
+                        {rankType === 'focus'
+                          ? t('TOTAL_FOCUS_TIME')
+                          : rankType === 'break'
+                          ? t('TOTAL_BREAK_TIME')
+                          : t('TOTAL_TIME')}{' '}
+                        ({t('TIME_UNIT')})
+                      </th>
                     </tr>
-                  ) : (
-                    (rankView === 'personal'
+                  </thead>
+                  <tbody>
+                    {(rankView === 'personal'
                       ? personalRanking
                       : affiliationRanking
-                    ).map((item, i) => (
-                      <tr
-                        key={rankView === 'personal' ? item.uid : item.name}
-                        className={`border-b border-white/5 transition-colors hover:bg-white/5 ${
-                          i === 0 ? 'bg-yellow-500/10' : ''
-                        }`}>
-                        <td className='py-4 px-6'>
-                          <span
-                            className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold ${
-                              i === 0
-                                ? 'bg-yellow-500 text-black'
-                                : i === 1
-                                ? 'bg-zinc-300 text-black'
-                                : i === 2
-                                ? 'bg-amber-700 text-white'
-                                : 'text-white/70'
-                            }`}>
-                            {i + 1}
-                          </span>
-                        </td>
-                        {rankView === 'personal' ? (
-                          <>
-                            <td className='py-4 px-6 text-white font-medium'>
-                              {(item as UserRank).nickname}
-                            </td>
-                            <td className='py-4 px-6 text-white/70'>
-                              {(item as UserRank).affiliation}
-                            </td>
-                          </>
-                        ) : (
-                          <>
-                            <td className='py-4 px-6 text-white font-medium'>
-                              {(item as AffiliationRank).name}
-                            </td>
-                            <td className='py-4 px-6 text-center text-white/70'>
-                              {(item as AffiliationRank).memberCount}{' '}
-                              {t('MEMBERS')}
-                            </td>
-                          </>
-                        )}
-                        <td className='py-4 px-6 text-right font-mono text-white'>
-                          {rankView === 'personal'
-                            ? formatTime(
-                                rankType === 'focus'
-                                  ? (item as UserRank).totalFocusTime
-                                  : rankType === 'break'
-                                  ? (item as UserRank).totalBreakTime
-                                  : (item as UserRank).totalFocusTime +
-                                    (item as UserRank).totalBreakTime
-                              )
-                            : formatTime(
-                                rankType === 'focus'
-                                  ? (item as AffiliationRank).totalFocusTime
-                                  : rankType === 'break'
-                                  ? (item as AffiliationRank).totalBreakTime
-                                  : (item as AffiliationRank).totalFocusTime +
-                                    (item as AffiliationRank).totalBreakTime
-                              )}
+                    ).length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className='text-center py-12 text-white/50'>
+                          {t('NO_DATA')}
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    ) : (
+                      (rankView === 'personal'
+                        ? personalRanking
+                        : affiliationRanking
+                      ).map((item, i) => (
+                        <tr
+                          key={rankView === 'personal' ? item.uid : item.name}
+                          className={`border-b border-white/5 transition-colors hover:bg-white/5 ${
+                            i === 0 ? 'bg-yellow-500/10' : ''
+                          }`}>
+                          <td className='py-4 px-6'>
+                            <span
+                              className={`inline-flex items-center justify-center w-8 h-8 rounded-full font-bold ${
+                                i === 0
+                                  ? 'bg-yellow-500 text-black'
+                                  : i === 1
+                                  ? 'bg-zinc-300 text-black'
+                                  : i === 2
+                                  ? 'bg-amber-700 text-white'
+                                  : 'text-white/70'
+                              }`}>
+                              {i + 1}
+                            </span>
+                          </td>
+                          {rankView === 'personal' ? (
+                            <>
+                              <td className='py-4 px-6 text-white font-medium'>
+                                {(item as UserRank).nickname}
+                              </td>
+                              <td className='py-4 px-6 text-white/70'>
+                                {(item as UserRank).affiliation}
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className='py-4 px-6 text-white font-medium'>
+                                {(item as AffiliationRank).name}
+                              </td>
+                              <td className='py-4 px-6 text-center text-white/70'>
+                                {(item as AffiliationRank).memberCount}{' '}
+                                {t('MEMBERS')}
+                              </td>
+                            </>
+                          )}
+                          <td className='py-4 px-6 text-right font-mono text-white'>
+                            {rankView === 'personal'
+                              ? formatTime(
+                                  rankType === 'focus'
+                                    ? (item as UserRank).totalFocusTime
+                                    : rankType === 'break'
+                                    ? (item as UserRank).totalBreakTime
+                                    : (item as UserRank).totalFocusTime +
+                                      (item as UserRank).totalBreakTime
+                                )
+                              : formatTime(
+                                  rankType === 'focus'
+                                    ? (item as AffiliationRank).totalFocusTime
+                                    : rankType === 'break'
+                                    ? (item as AffiliationRank).totalBreakTime
+                                    : (item as AffiliationRank).totalFocusTime +
+                                      (item as AffiliationRank).totalBreakTime
+                                )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
