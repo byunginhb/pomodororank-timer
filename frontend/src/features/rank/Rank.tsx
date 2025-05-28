@@ -53,12 +53,13 @@ const Rank: React.FC = () => {
         const snap = await getDocs(q);
         const data: UserRank[] = snap.docs.map((doc) => {
           const d = doc.data();
+          const stats = d.timerStats || {};
           return {
             uid: d.uid,
             nickname: d.nickname || '',
             affiliation: d.affiliation || '',
-            totalFocusTime: d.totalFocusTime || 0,
-            totalBreakTime: d.totalBreakTime || 0,
+            totalFocusTime: stats.totalFocusTime || 0,
+            totalBreakTime: stats.totalBreakTime || 0,
           };
         });
         setUsers(data);
