@@ -31,9 +31,10 @@ interface TimerState {
   reset: () => void;
   tick: () => void;
   completeSession: (mode: 'focus' | 'break') => void;
+  loadStats: (uid: string) => Promise<void>;
 }
 
-const loadStats = async (uid: string): Promise<TimerStats> => {
+const _loadStats = async (uid: string): Promise<TimerStats> => {
   try {
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
@@ -152,6 +153,11 @@ export const useTimerStore = create(
         await saveStats(user.uid, newStats);
       }
       set({ stats: newStats }, false, 'completeSession');
+    },
+
+    loadStats: async (uid: string) => {
+      const stats = await _loadStats(uid);
+      set({ stats }, false, 'loadStats');
     },
   }))
 );
