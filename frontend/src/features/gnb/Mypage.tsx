@@ -13,7 +13,6 @@ import { db } from '../../constants/constants';
 
 export default function Mypage() {
   const [nickname, setNickname] = useState('');
-  const [affiliation, setAffiliation] = useState('');
   const [affiliationInput, setAffiliationInput] = useState('');
   const [affiliationList, setAffiliationList] = useState<string[]>([]);
   const [affiliationDropdownOpen, setAffiliationDropdownOpen] = useState(false);
@@ -28,7 +27,6 @@ export default function Mypage() {
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         setNickname(userSnap.data().nickname || '');
-        setAffiliation(userSnap.data().affiliation || '');
         setAffiliationInput(userSnap.data().affiliation || '');
       }
       // 소속 목록 불러오기
@@ -53,7 +51,6 @@ export default function Mypage() {
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, { nickname, affiliation: affiliationInput });
-      setAffiliation(affiliationInput);
       setMessage('저장되었습니다!');
     } catch {
       setMessage('저장에 실패했습니다.');
@@ -62,13 +59,11 @@ export default function Mypage() {
 
   const handleAffiliationChange = (value: string) => {
     setAffiliationInput(value);
-    setAffiliation(value);
     setAffiliationDropdownOpen(false);
   };
 
   const handleAffiliationInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAffiliationInput(e.target.value);
-    setAffiliation(e.target.value);
     setAffiliationDropdownOpen(true);
   };
 
