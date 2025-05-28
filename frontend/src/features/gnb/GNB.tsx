@@ -8,6 +8,7 @@ import {
   FiPlay,
   FiClock,
   FiAward,
+  FiUser,
 } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import {
@@ -246,6 +247,22 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
     }
   };
 
+  useEffect(() => {
+    if (!user) {
+      setNickname('');
+      return;
+    }
+    (async () => {
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && userSnap.data().nickname) {
+        setNickname(userSnap.data().nickname);
+      } else {
+        setNickname(user.email || '');
+      }
+    })();
+  }, [user]);
+
   return (
     <>
       {/* 프로필 입력 모달 */}
@@ -322,14 +339,14 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
         }`}>
         {/* 로고 */}
         <div className='flex items-center h-full'>
-          <div className='p-2 h-16 flex items-center'>
+          <Link to='/' className='p-2 h-16 flex items-center'>
             <img
               src='/logo.png'
               alt='logo'
-              className='h-16 w-auto mr-2'
+              className='h-16 w-auto mr-2 cursor-pointer'
               style={{ minWidth: 64 }}
             />
-          </div>
+          </Link>
         </div>
         {/* PC 메뉴 */}
         <div className='hidden md:flex items-center space-x-4'>
@@ -431,12 +448,25 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
               <FiAward className='text-lg' />
               {t('RANK')}
             </Link>
+            {user && (
+              <Link
+                to='/mypage'
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                  ${
+                    location.pathname.startsWith('/mypage')
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'text-emerald-200 hover:bg-emerald-800/40'
+                  }`}>
+                <FiUser className='text-lg' />
+                마이페이지
+              </Link>
+            )}
           </nav>
           {/* 로그인/로그아웃 버튼 */}
           {user ? (
             <div className='flex items-center space-x-2'>
               <span className='text-white text-sm font-medium'>
-                {user.displayName || user.email}
+                {nickname || user?.email}
               </span>
               <button
                 className='ml-2 px-4 py-2 bg-zinc-700 text-white rounded hover:bg-zinc-800 transition font-semibold text-sm shadow'
@@ -466,12 +496,14 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
             <div className='w-2/3 max-w-xs h-full p-6 flex flex-col space-y-6 shadow-lg'>
               <div className='flex justify-between items-center mb-4'>
                 <div className='w-32 h-16 flex items-center'>
-                  <img
-                    src='/logo.png'
-                    alt='logo'
-                    className='h-16 w-auto mr-2'
-                    style={{ minWidth: 64 }}
-                  />
+                  <Link to='/' onClick={() => setMobileMenuOpen(false)}>
+                    <img
+                      src='/logo.png'
+                      alt='logo'
+                      className='h-16 w-auto mr-2 cursor-pointer'
+                      style={{ minWidth: 64 }}
+                    />
+                  </Link>
                 </div>
                 <button
                   className='text-white text-2xl'
@@ -565,6 +597,20 @@ const GNB: React.FC<{ mode: 'focus' | 'break' }> = ({ mode }) => {
                   <FiAward className='text-lg' />
                   {t('RANK')}
                 </Link>
+                {user && (
+                  <Link
+                    to='/mypage'
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold transition-all duration-200 text-sm
+                      ${
+                        location.pathname.startsWith('/mypage')
+                          ? 'bg-emerald-600 text-white shadow'
+                          : 'text-emerald-200 hover:bg-emerald-800/40'
+                      }`}
+                    onClick={() => setMobileMenuOpen(false)}>
+                    <FiUser className='text-lg' />
+                    마이페이지
+                  </Link>
+                )}
               </nav>
               {/* 로그인/로그아웃 버튼 */}
               {user ? (
